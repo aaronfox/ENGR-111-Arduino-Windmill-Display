@@ -10,7 +10,7 @@ LiquidCrystal lcd(8, 9, 10, 11, 12, 13);
 
 // Display settings
 /*creates an integer variable called displaySetting and sets it to 
-  1 so the LCD display will show the first data display by default*/
+  1 so the LCD will show the first data display by default*/
 int displaySetting = 1;
 const int MAX_DISPLAYS = 3; // sets a read-only integer named MAX_DISPLAYS to 3
 const int buttonPin = 3; // sets a read-only integer named buttonPin to 3
@@ -58,7 +58,7 @@ void setup() {
   // LCD setup
   // initializes interaction with the LCD and sets it to display 16 columns and 2 rows
   lcd.begin(16, 2);
-  lcd.display(); //turns on the lcd display
+  lcd.display(); //turns on the lcd
   // end LCD setup
 
   // LCD pin interrupt
@@ -82,7 +82,7 @@ void loop() {
   // pauses the program for 1000 ms
   delay(1000);
   // calls on the displayLCD() function to so that it can print data to the LCD
-  displayLCD(); // Only changes LCD display once per second
+  displayLCD(); // Only changes LCD once per second
   
   // Change rpm every 30 breakcounts
   if (breakCount >= 30) {
@@ -95,22 +95,34 @@ void loop() {
     // print the RPM to Serial for debugging purposes, ensuring the typecast rpm as a string
     Serial.println("RPM == " + String(rpm));
 
-    // calculate and display to Serial powerOut
+    // create a double named efficiency so so that it can be printed to the LCD 
     double efficiency = 0.0;
+    // calculates the torque being output with the equation extrapolated from 
+    // the ratio of torque_in * rpm_in = torque_out * rpm_out
     torqueOut = (rpm - 12800) / (-40);
-    Serial.println("torqueOut == " + (String)torqueOut);
+
+    // only execute this portion if the torque_out is less than or equal 48 g-cm
     if (torqueOut <= 48)
     {
+      // sets efficiency equal to the y = −0.001618x^2 + 0.363542x + 49.376500
+      // which relates motor efficiency and torque
       efficiency = (-0.001618 * (torqueOut * torqueOut)) + (0.363542 * torqueOut) + 49.376500;
     }
+    // else execute the formula used for when torque_out is greater than 48 g-cm
     else if (torqueOut > 48)
     {
+      // sets efficiency equal to the y = −0.000434x^2 − 0.072269x + 67.566800
+      // which relates motor efficiency and torque
       efficiency = (-0.000434 * (torqueOut * torqueOut)) - (0.072269 * torqueOut) + 67.566800;
     }
 
+    // calculates the power input to the motor using the equation relating relating torque
+    // and power: y = −0.000428x^2 + 0.136943x+ 0.000739
     double powerInMotor = (-0.000428 * (torqueOut * torqueOut)) + (0.136943 * torqueOut) + 0.000739;
-    
+
+    // calculates power_out by multiplying the efficiency by power_in
     powerOut = efficiency * powerInMotor;
+    // prints power_out to Serial for debugging purposes
     Serial.println("powerOut == " + (String)powerOut);
     // end calculation of powerOut
 
@@ -122,21 +134,37 @@ void loop() {
 // Called whenever the LCD is called to be updated
 void displayLCD()
 {
+  // switch case statement comparing the integer displaySetting
+  // to the 3 cases specified
   switch (displaySetting)
   {
+    // if displaySetting == 1
     case 1:
+      // clears LCD to prevent stacking of output
       lcd.clear();
+      // prints rpm to LCD 
       lcd.print(rpm);
+      // break so the other cases are avoided
       break;
+    // if displaySetting == 2
     case 2:
+      // clears LCD to prevent stacking of output
       lcd.clear();
+      // prints power_out to LCD in 
       lcd.print(powerOut);
+      // break so the other cases are avoided
       break;
+    // if displaySetting == 3
     case 3:
+      // clears LCD to prevent stacking of output
       lcd.clear();
+      // prints efficiency_total to LCD 
       lcd.print("DATA 3");
+      // break so the other cases are avoided
       break;
+    // else, displaySetting somehow got to be a number it shouldn't be
     default:
+      // clears LCD to prevent stacking of output
       lcd.clear();
       lcd.print("Unknown Setting!");
   }
