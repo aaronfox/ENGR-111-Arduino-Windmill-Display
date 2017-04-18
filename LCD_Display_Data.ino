@@ -10,7 +10,7 @@ LiquidCrystal lcd(8, 9, 10, 11, 12, 13);
 
 // Display settings
 /*creates an integer variable called displaySetting and sets it to 
-  1 so the LCD will show the first data display by default*/
+  1 so the LCD willyyyyyyyrdfd show the first data display by default*/
 int displaySetting = 1;
 const int MAX_DISPLAYS = 3; // sets a read-only integer named MAX_DISPLAYS to 3
 const int buttonPin = 3; // sets a read-only integer named buttonPin to 3
@@ -51,6 +51,13 @@ const int numberOfBlades = 4;
 double torqueOut = 0.0;
 // sets the global double variable of powerOut so that it can be changed and read everywhere in the program
 double powerOut = 0.0;
+
+/*
+ * VARIABLES ADDED FOR SYSTEM EFFICIENCY 
+ */
+ // sets the global double sys_eff so that it can be chaneged and read everywhere in the program
+ // and eventually displayed on the LCD
+ double sys_eff = 0.0;
 
 // sets up the desired components of the arduino, including the LCD setup, pin interrupts, and the Serial Monitor
 // and is only run once
@@ -113,6 +120,7 @@ void loop() {
     {
       // sets efficiency equal to the y = −0.000434x^2 − 0.072269x + 67.566800
       // which relates motor efficiency and torque
+      // and implicitly converts g-cm to N-m
       efficiency = (-0.000434 * (torqueOut * torqueOut)) - (0.072269 * torqueOut) + 67.566800;
     }
 
@@ -126,7 +134,16 @@ void loop() {
     Serial.println("powerOut == " + (String)powerOut);
     // end calculation of powerOut
 
-    // TODO: Calculate total efficiency
+    // Calculate torqueIn so sys_eff can be calculated
+    const int GEAR_RATIO = 8;
+    double rpm_out = GEAR_RATIO * rpm;
+    double torqueIn = torqueOut * rpm_out / rpm;
+    double powerIn = (torqueIn * 0.0000980665 * rpm / 9549) *1000; // multiply by 1000 to convert klp pkl kW to W
+    sys_eff = (powerOut / powerIn);
+    Serial.println("sys_eff == " + (String)sys_eff);
+
+    // resets the breakCount so the loop can actually recount to 30 before entering this loop again
+    // otherwise, it would never escape this loop!
     breakCount = 0;
   }
 }
@@ -158,8 +175,7 @@ void displayLCD()
     case 3:
       // clears LCD to prevent stacking of output
       lcd.clear();
-      // prints efficiency_total to LCD 
-      lcd.print("DATA 3");
+      lcd.print((String)(sys_eff * 100) + "%");
       // break so the other cases are avoided
       break;
     // else, displaySetting somehow got to be a number it shouldn't be
