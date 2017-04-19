@@ -65,7 +65,7 @@ void setup() {
   // LCD setup
   // initializes interaction with the LCD and sets it to display 16 columns and 2 rows
   lcd.begin(16, 2);
-  lcd.display(); //turns on the lcd
+  lcd.display(); //turns on the LCD
   // end LCD setup
 
   // LCD pin interrupt
@@ -179,6 +179,7 @@ void displayLCD()
     case 3:
       // clears LCD to prevent stacking of output
       lcd.clear();
+      // prints the system efficiency to LCD as a percentage
       lcd.print((String)(sys_eff * 100) + "%");
       // break so the other cases are avoided
       break;
@@ -186,30 +187,46 @@ void displayLCD()
     default:
       // clears LCD to prevent stacking of output
       lcd.clear();
+      // prints to LCD that that somehow displaySetting became something other than the numbers 1,2, or 3
       lcd.print("Unknown Setting!");
   }
 }
 
+// changes display setting to be between 1 and 3
 void changeDisplaySetting()
 {
   // Only lets you switch display every DISPLAY_DELAY milliseconds
   if (lastDisplaySwitch + DISPLAY_DELAY < millis())
   {
+    // figure out the time which the last time displaySwitch has been changed
+    // so we can make sure to only switch display eveery DISPLAY_DELAY milliseconds
     lastDisplaySwitch = millis();
+    // print to Serial that the displaySetting variable is changing
     Serial.println("Switching display");
+    // increment displaySetting by one
     displaySetting++;
+    // reset display setting back to MAX_DISPLAYS to avoid having a displaySetting that is higher than 3
     if (displaySetting > MAX_DISPLAYS)
     {
+      // reset displaySetting to 1
       displaySetting = 1;
     }
+    // calls on displayLCD() so that it can check the new displaySetting and change it's
+    // output to the LCd accordingly
     displayLCD();
   }
 }
 
+// increments breakCouunt every time the IR led and phototransistors's signal is broken
+// i.e. the windmill blades came between the two
 void broken() {
+  // if the breakCount was reset to 0, obtain this startTime so that it can be substracted from the time 
+  // that is recorded at the endTime at 30 breaks and used in calculating the RPM
   if (breakCount == 0) {
+    // record the current time from the program startto now into startTime so that it can be subtracted from endTime
     startTime = millis();
   }
+  // increments breakCount by one each time broken is called
   breakCount++;
 }
 
