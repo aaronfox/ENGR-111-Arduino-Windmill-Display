@@ -10,7 +10,7 @@ LiquidCrystal lcd(8, 9, 10, 11, 12, 13);
 
 // Display settings
 /*creates an integer variable called displaySetting and sets it to 
-  1 so the LCD willyyyyyyyrdfd show the first data display by default*/
+  1 so the LCD will show the first data display by default*/
 int displaySetting = 1;
 const int MAX_DISPLAYS = 3; // sets a read-only integer named MAX_DISPLAYS to 3
 const int buttonPin = 3; // sets a read-only integer named buttonPin to 3
@@ -55,7 +55,7 @@ double powerOut = 0.0;
 /*
  * VARIABLES ADDED FOR SYSTEM EFFICIENCY 
  */
- // sets the global double sys_eff so that it can be chaneged and read everywhere in the program
+ // sets the global double sys_eff so that it can be changed and read everywhere in the program
  // and eventually displayed on the LCD
  double sys_eff = 0.0;
 
@@ -135,10 +135,10 @@ void loop() {
     // end calculation of powerOut
 
     // Calculate torqueIn so sys_eff can be calculated
-    const int GEAR_RATIO = 8;
-    double rpm_out = GEAR_RATIO * rpm;
+    const int GEAR_RATIO = 8; // read-only integer that divides the 64 tooth gear by 8 tooth gear, yielding 8
+    double rpm_out = GEAR_RATIO * rpm; // calculates rpm output using the equation
     double torqueIn = torqueOut * rpm_out / rpm;
-    double powerIn = (torqueIn * 0.0000980665 * rpm / 9549) *1000; // multiply by 1000 to convert klp pkl kW to W
+    double powerIn = (torqueIn * 0.0000980665 * rpm / 9549) *1000; // multiply by 1000 to convert kW to W
     sys_eff = (powerOut / powerIn);
     Serial.println("sys_eff == " + (String)sys_eff);
 
