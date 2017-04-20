@@ -212,7 +212,7 @@ void changeDisplaySetting()
       displaySetting = 1;
     }
     // calls on displayLCD() so that it can check the new displaySetting and change it's
-    // output to the LCd accordingly
+    // output to the LCD accordingly
     displayLCD();
   }
 }
