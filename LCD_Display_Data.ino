@@ -104,10 +104,14 @@ void loop() {
 
     // create a double named efficiency so so that it can be printed to the LCD 
     double efficiency = 0.0;
+    const int GEAR_RATIO = 8; // read-only integer that divides the 64 tooth gear by 8 tooth gear, yielding 8
+    double rpm_out = GEAR_RATIO * rpm; // calculates rpm output using the equation
     // calculates the torque being output with the equation extrapolated from 
     // the ratio of torque_in * rpm_in = torque_out * rpm_out
-    torqueOut = (rpm - 12800) / (-40);
-
+    torqueOut = (rpm_out - 12800) / (-40);
+    double tOutNM = 0.0000980655 * ((rpm_out - 12800) / (-40));
+    double tIn = tOutNM * rpm_out / rpm;
+    double pIn = tIn * rpm / 9549 * 1000;
     // only execute this portion if the torque_out is less than or equal 48 g-cm
     if (torqueOut <= 48)
     {
@@ -123,7 +127,7 @@ void loop() {
       // and implicitly converts g-cm to N-m
       efficiency = (-0.000434 * (torqueOut * torqueOut)) - (0.072269 * torqueOut) + 67.566800;
     }
-
+    efficiency /= 100;
     // calculates the power input to the motor using the equation relating relating torque
     // and power: y = −0.000428x^2 + 0.136943x+ 0.000739
     double powerInMotor = (-0.000428 * (torqueOut * torqueOut)) + (0.136943 * torqueOut) + 0.000739;
@@ -135,9 +139,10 @@ void loop() {
     // end calculation of powerOut
 
     // Calculate torqueIn so sys_eff can be calculated
-    const int GEAR_RATIO = 8; // read-only integer that divides the 64 tooth gear by 8 tooth gear, yielding 8
-    double rpm_out = GEAR_RATIO * rpm; // calculates rpm output using the equation
+    
+    
     // the 0.00009... converts torque in to N-m from g-cm
+    double torqueIn = torqueOut * rpm_out / rpm; // calculates torque_in using the ratio of t_in / t_out = n_out / n_in
     double powerIn = (torqueIn * 0.0000980665 * rpm / 9549) *1000; // multiply by 1000 to convert kW to W
     // calculate system efficiency by dividing power output by power input
     sys_eff = (powerOut / powerIn);
@@ -210,7 +215,7 @@ void changeDisplaySetting()
       displaySetting = 1;
     }
     // calls on displayLCD() so that it can check the new displaySetting and change it's
-    // output to the LCD accordingly
+    // output to the LCd accordingly
     displayLCD();
   }
 }
