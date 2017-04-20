@@ -137,8 +137,6 @@ void loop() {
     // Calculate torqueIn so sys_eff can be calculated
     const int GEAR_RATIO = 8; // read-only integer that divides the 64 tooth gear by 8 tooth gear, yielding 8
     double rpm_out = GEAR_RATIO * rpm; // calculates rpm output using the equation
-    double torqueIn = torqueOut * rpm_out / rpm; // calculates torque_in using the ratio of t_in / t_out = n_out / n_in
-    // calculate power input using the equation p_in = t_in  * n_in / 9549
     // the 0.00009... converts torque in to N-m from g-cm
     double powerIn = (torqueIn * 0.0000980665 * rpm / 9549) *1000; // multiply by 1000 to convert kW to W
     // calculate system efficiency by dividing power output by power input
@@ -164,7 +162,7 @@ void displayLCD()
       // clears LCD to prevent stacking of output
       lcd.clear();
       // prints rpm to LCD 
-      lcd.print(rpm);
+      lcd.print((String)rpm + " RPM");
       // break so the other cases are avoided
       break;
     // if displaySetting == 2
@@ -172,7 +170,7 @@ void displayLCD()
       // clears LCD to prevent stacking of output
       lcd.clear();
       // prints power_out to LCD in 
-      lcd.print(powerOut);
+      lcd.print((String)(powerOut) + " W");
       // break so the other cases are avoided
       break;
     // if displaySetting == 3
