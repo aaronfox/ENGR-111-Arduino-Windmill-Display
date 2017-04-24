@@ -109,9 +109,6 @@ void loop() {
     // calculates the torque being output with the equation extrapolated from 
     // the ratio of torque_in * rpm_in = torque_out * rpm_out
     torqueOut = (rpm_out - 12800) / (-40);
-    double tOutNM = 0.0000980655 * ((rpm_out - 12800) / (-40));
-    double tIn = tOutNM * rpm_out / rpm;
-    double pIn = tIn * rpm / 9549 * 1000;
     // only execute this portion if the torque_out is less than or equal 48 g-cm
     if (torqueOut <= 48)
     {
@@ -139,8 +136,6 @@ void loop() {
     // end calculation of powerOut
 
     // Calculate torqueIn so sys_eff can be calculated
-    
-    
     // the 0.00009... converts torque in to N-m from g-cm
     double torqueIn = torqueOut * rpm_out / rpm; // calculates torque_in using the ratio of t_in / t_out = n_out / n_in
     double powerIn = (torqueIn * 0.0000980665 * rpm / 9549) *1000; // multiply by 1000 to convert kW to W
